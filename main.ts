@@ -1,25 +1,12 @@
 import { Application } from "jsr:@oak/oak/application";
 import { Router } from "jsr:@oak/oak/router";
-import { validateUrls, fetchURLs } from "./urls.ts";
+import { urlRequestHandler } from "./urls.ts";
+import { Context } from "jsr:@oak/oak@^16.1.0/context";
 
 const router = new Router();
 
-router.post("/api/v1/urls", async (ctx) => {
-  const body = await ctx.request.body.text();
-  const urls = JSON.parse(body).urls;
-  if (!validateUrls(urls)) {
-    ctx.response.type = "json";
-    ctx.response.body = { error: "Bad Request" };
-    ctx.response.status = 400;
-    return;
-  }
-  // If request passes validation, continue
-  const statuses = await fetchURLs(urls);
-  const statusResponse = JSON.stringify(statuses);
-
-  ctx.response.type = "json";
-  ctx.response.body = statusResponse;
-  ctx.response.status = 200;
+router.post("/api/v1/urls", async (ctx:Context) => {
+  await urlRequestHandler(ctx)
 });
 
 const app = new Application();

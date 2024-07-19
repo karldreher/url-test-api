@@ -4,6 +4,7 @@
     "specifiers": {
       "jsr:@oak/commons@0.11": "jsr:@oak/commons@0.11.0",
       "jsr:@oak/oak": "jsr:@oak/oak@16.1.0",
+      "jsr:@oak/oak@^16.1.0": "jsr:@oak/oak@16.1.0",
       "jsr:@std/assert": "jsr:@std/assert@0.226.0",
       "jsr:@std/assert@0.223": "jsr:@std/assert@0.223.0",
       "jsr:@std/assert@0.226": "jsr:@std/assert@0.226.0",
