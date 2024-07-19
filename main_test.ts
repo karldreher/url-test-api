@@ -1,16 +1,19 @@
 import { assertEquals, assertExists } from "jsr:@std/assert";
-import { fetchURLs } from "./main.ts";
+import { fetchURLs } from "./urls.ts";
 const controller = new AbortController();
+
+//A simple request handler to respond to the test.
+// It gets shut down when all tests finish.
+Deno.serve((_req) => new Response())
 
 Deno.test({
   name: "Test fetchURLs",
   async fn() {
-    // Test is fetching against the deno-generated server.  A bit of a hack to avoid spamming internet hosts.
+    // Test is fetching against the server above.  
     const u = new URL("http://localhost:8000/");
     const status = await fetchURLs([u]);
     assertExists(status);
-    // Because of our cool trick, in this case it's just relevant that it responds.  400 is fine.
-    assertEquals(status, [{ url: "http://localhost:8000/", status: 400 }]);
+    assertEquals(status, [{ url: "http://localhost:8000/", status: 200 }]);
     controller.abort();
   },
   sanitizeResources: false,

@@ -1,44 +1,29 @@
-import { URLStatus } from "./types.ts";
+import { Application } from "jsr:@oak/oak/application";
+import { Router } from "jsr:@oak/oak/router";
+import { validateUrls, fetchURLs } from "./urls.ts";
 
-Deno.serve(async (req: Request) => {
-  if (req.method == "POST") {
-    if (req.body) {
-      const body = await req.text();
-      const urls = JSON.parse(body).urls;
+const router = new Router();
 
-      if (
-        !urls.every((u: string) => {
-          try {
-            new URL(u);
-            return true;
-          } catch {
-            return false;
-          }
-        })
-      ) {
-        return new Response("Bad Input", { status: 400 });
-      }
-      const statuses = await fetchURLs(urls);
-      const statusResponse = JSON.stringify(statuses);
-
-      return new Response(statusResponse, { status: 200 });
-    }
-    return new Response("OK", { status: 200 });
+router.post("/api/v1/urls", async (ctx) => {
+  const body = await ctx.request.body.text();
+  const urls = JSON.parse(body).urls;
+  if (!validateUrls(urls)) {
+    ctx.response.type = "json";
+    ctx.response.body = { error: "Bad Request" };
+    ctx.response.status = 400;
+    return;
   }
+  // If request passes validation, continue
+  const statuses = await fetchURLs(urls);
+  const statusResponse = JSON.stringify(statuses);
 
-  return new Response("Bad Request", { status: 400 });
+  ctx.response.type = "json";
+  ctx.response.body = statusResponse;
+  ctx.response.status = 200;
 });
 
-export async function fetchURLs(urls: URL[]) {
-  const statuses = new Array<URLStatus>();
-  const promises = urls.map(async (u) => {
-    const req = await fetch(u);
-    if (req.status) {
-      statuses.push({ url: u.toString(), status: req.status });
-    }
-    //todo, need to handle weird stuff here
-  });
+const app = new Application();
 
-  await Promise.all(promises);
-  return statuses;
-}
+app.use(router.routes());
+app.use(router.allowedMethods());
+app.listen({ port: 8000 });
