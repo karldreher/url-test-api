@@ -42,6 +42,8 @@ export async function fetchURLs(urls: URL[]) {
 /**
  * Request handler for url POST requests.
  * @param ctx Oak Context
+ * @example
+ * POST body: {"urls":["https://example.org","https://example.com"]}
  */
 export async function urlRequestHandler(ctx: Context) {
   const body = await ctx.request.body.text();
