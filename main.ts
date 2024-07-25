@@ -1,6 +1,6 @@
 import { Application } from "jsr:@oak/oak/application";
 import { Router } from "jsr:@oak/oak/router";
-import { urlRequestHandler } from "./urls.ts";
+import { urlRequestHandler } from "./src/urls.ts";
 import { Context } from "jsr:@oak/oak@^16.1.0/context";
 
 const router = new Router();
