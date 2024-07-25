@@ -45,7 +45,7 @@ export async function fetchURLs(urls: URL[]) {
  * @example
  * POST body: {"urls":["https://example.org","https://example.com"]}
  */
-export async function urlRequestHandler(ctx: Context) {
+export async function v1UrlRequestHandler(ctx: Context) {
   const body = await ctx.request.body.text();
   const urls = JSON.parse(body).urls;
   if (!validateUrls(urls)) {
