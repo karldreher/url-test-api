@@ -1,6 +1,5 @@
 import { Context } from "jsr:@oak/oak@^16.1.0/context";
 import { kv } from "./kv.ts";
-import { URLStatus } from "./types.ts";
 
 /**
  * Request handler for **Async** status POST requests.
