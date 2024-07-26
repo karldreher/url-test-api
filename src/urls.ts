@@ -1,5 +1,6 @@
 import { Context } from "jsr:@oak/oak@^16.1.0/context";
 import { URLStatus } from "./types.ts";
+import { kv } from "./kv.ts";
 
 /**
  *
@@ -60,5 +61,37 @@ export async function v1UrlRequestHandler(ctx: Context) {
 
   ctx.response.type = "json";
   ctx.response.body = statusResponse;
+  ctx.response.status = 200;
+}
+
+/**
+ * **Async** Request handler for url POST requests.
+ * @param ctx Oak Context
+ * @example
+ * POST body: {"urls":["https://example.org","https://example.com"]}
+ */
+export async function v2UrlRequestHandler(ctx: Context) {
+  const body = await ctx.request.body.text();
+  const urls = JSON.parse(body).urls;
+  if (!validateUrls(urls)) {
+    ctx.response.type = "json";
+    ctx.response.body = { error: "Bad Request" };
+    ctx.response.status = 400;
+    return;
+  }
+  // If request passes validation, continue
+
+  const id: string = crypto.randomUUID();
+  // TODO add to kv
+  const task = await kv.set(["request", id], urls);
+  if (!task.ok) {
+    // Fail
+    ctx.response.type = "json";
+    ctx.response.status = 500;
+    return
+  }
+  // Respond with the ID
+  ctx.response.type = "json";
+  ctx.response.body = { id: id };
   ctx.response.status = 200;
 }
