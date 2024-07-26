@@ -83,7 +83,7 @@ export async function v2UrlRequestHandler(ctx: Context) {
 
   const id: string = crypto.randomUUID();
   // TODO add to kv
-  const task = await kv.set(["request", id], urls);
+  const task = await kv.enqueue({"id":id, "urls":urls});
   if (!task.ok) {
     // Fail
     ctx.response.type = "json";
