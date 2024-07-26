@@ -1,19 +1,21 @@
 import { Application } from "jsr:@oak/oak/application";
 import { Router } from "jsr:@oak/oak/router";
 import { Context } from "jsr:@oak/oak@^16.1.0/context";
+import { kv } from "./src/kv.ts";
+import { v2StatusHandler } from "./src/status.ts";
 import {
   v1UrlRequestHandler,
   v2UrlRequestHandler,
   fetchURLs,
 } from "./src/urls.ts";
-import { v2StatusHandler } from "./src/status.ts";
-import { kv } from "./src/kv.ts";
 
+// Queue listener, for async requests from v2 endpoints
 kv.listenQueue(async (msg) => {
   const status = await fetchURLs(msg.urls);
   kv.set(["status", msg.id], status);
 });
 
+//Oak router for API
 const router = new Router();
 
 router.post("/api/v1/urls", async (ctx: Context) => {
