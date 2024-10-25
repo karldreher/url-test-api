@@ -20,7 +20,7 @@ export async function v2StatusHandler(ctx: Context) {
     const request = JSON.parse(body) as URLStatusRequest;
     const status = await kv.get(["status", request.id]);
     if (status.value === null) {
-      // This is a valid ID, but we don't have a status for it.
+      // This is a parseable ID, but we don't have a status for it.
       ctx.response.status = 404;
       return;
     }

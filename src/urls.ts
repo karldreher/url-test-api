@@ -84,7 +84,7 @@ export async function v2UrlRequestHandler(ctx: Context) {
   // If request passes validation, continue
 
   const id: string = crypto.randomUUID();
-  // TODO add to kv
+
   const task = await kv.enqueue({"id":id, "urls":urls});
   if (!task.ok) {
     // Fail
