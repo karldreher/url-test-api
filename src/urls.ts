@@ -1,6 +1,6 @@
 import { Context } from "jsr:@oak/oak@^16.1.0/context";
 import { kv } from "./kv.ts";
-import { URLStatus } from "./types.ts";
+import type { URLStatus } from  "./types.ts";
 
 /**
  *
@@ -31,7 +31,8 @@ export async function fetchURLs(urls: URL[]) {
   const promises = urls.map(async (u) => {
     const req = await fetch(u);
     if (req.status) {
-      statuses.push({ url: u.toString(), status: req.status });
+      const status = {url: u.toString(), status: req.status} as URLStatus;
+      statuses.push(status);
     }
     //todo, need to handle weird stuff here
   });
