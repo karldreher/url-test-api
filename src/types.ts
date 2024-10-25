@@ -1,3 +1,7 @@
+export interface URLTestRequest {
+  urls: string[];
+}
+
 /**
  * An interface for a URL (as a string) and a status, e.g. 200.
  */
