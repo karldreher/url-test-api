@@ -26,9 +26,10 @@ router.post("/api/v2/urls", async (ctx: Context) => {
   await v2UrlRequestHandler(ctx);
 });
 
-router.post("/api/v2/status", async (ctx:Context)=>
-  await v2StatusHandler(ctx)
-)
+router.post(
+  "/api/v2/status",
+  async (ctx: Context) => await v2StatusHandler(ctx)
+);
 
 const app = new Application();
 

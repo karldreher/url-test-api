@@ -5,3 +5,7 @@ export interface URLStatus {
   url: string;
   status: number;
 }
+
+export interface URLStatusRequest {
+  id: string;
+}
