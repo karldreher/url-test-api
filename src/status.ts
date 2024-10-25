@@ -25,7 +25,6 @@ export async function v2StatusHandler(ctx: Context) {
       return;
     }
     const statusResponse = JSON.stringify(status.value);
-    kv.delete(["status", request.id]);
     ctx.response.body = statusResponse;
     ctx.response.status = 200;
     return;
