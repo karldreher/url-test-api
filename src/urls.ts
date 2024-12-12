@@ -1,6 +1,6 @@
 import { Context } from "jsr:@oak/oak@^16.1.0/context";
 import { kv } from "./kv.ts";
-import { URLStatus } from "./types.ts";
+import type { URLStatus, URLTestRequest } from  "./types.ts";
 
 /**
  *
@@ -31,7 +31,8 @@ export async function fetchURLs(urls: URL[]) {
   const promises = urls.map(async (u) => {
     const req = await fetch(u);
     if (req.status) {
-      statuses.push({ url: u.toString(), status: req.status });
+      const status = {url: u.toString(), status: req.status} as URLStatus;
+      statuses.push(status);
     }
     //todo, need to handle weird stuff here
   });
@@ -42,6 +43,7 @@ export async function fetchURLs(urls: URL[]) {
 
 /**
  * Request handler for url POST requests.
+ * These requests are synchronous and will block until all URLs are fetched.
  * @param ctx Oak Context
  * @example
  * POST body: {"urls":["https://example.org","https://example.com"]}
@@ -50,14 +52,14 @@ export async function v1UrlRequestHandler(ctx: Context) {
   ctx.response.type = "json";
   
   const body = await ctx.request.body.text();
-  const urls = JSON.parse(body).urls;
-  if (!validateUrls(urls)) {
-    ctx.response.body = { error: "Bad Request" };
+  const request = JSON.parse(body) as URLTestRequest;
+  if (!validateUrls(request.urls)) {
+    // At least one "URL" is not a valid URL.
     ctx.response.status = 400;
     return;
   }
   // If request passes validation, continue
-  const statuses = await fetchURLs(urls);
+  const statuses = await fetchURLs(request.urls.map((u) => new URL(u)));
   const statusResponse = JSON.stringify(statuses);
 
   ctx.response.body = statusResponse;
@@ -83,7 +85,6 @@ export async function v2UrlRequestHandler(ctx: Context) {
   // If request passes validation, continue
 
   const id: string = crypto.randomUUID();
-  // TODO add to kv
   const task = await kv.enqueue({"id":id, "urls":urls});
   if (!task.ok) {
     // Fail

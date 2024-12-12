@@ -12,7 +12,9 @@ import {
 // Queue listener, for async requests from v2 endpoints
 kv.listenQueue(async (msg) => {
   const status = await fetchURLs(msg.urls);
-  kv.set(["status", msg.id], status);
+  // Store the status in KV, with the ID as the key.  
+  // The status will expire in 10 minutes.
+  kv.set(["status", msg.id], status, {expireIn: 600});
 });
 
 //Oak router for API
@@ -26,9 +28,10 @@ router.post("/api/v2/urls", async (ctx: Context) => {
   await v2UrlRequestHandler(ctx);
 });
 
-router.post("/api/v2/status", async (ctx:Context)=>
-  await v2StatusHandler(ctx)
-)
+router.post(
+  "/api/v2/status",
+  async (ctx: Context) => await v2StatusHandler(ctx)
+);
 
 const app = new Application();
 

@@ -1,5 +1,6 @@
 import { Context } from "jsr:@oak/oak@^16.1.0/context";
 import { kv } from "./kv.ts";
+import type { URLStatusRequest } from "./types.ts";
 
 /**
  * Request handler for **Async** status POST requests.
@@ -14,20 +15,22 @@ import { kv } from "./kv.ts";
 export async function v2StatusHandler(ctx: Context) {
   ctx.response.type = "json";
 
-  const body = await ctx.request.body.text();
-  const id = JSON.parse(body).id;
-  if (id === null) {
+  try {
+    const body = await ctx.request.body.text();
+    const request = JSON.parse(body) as URLStatusRequest;
+    const status = await kv.get(["status", request.id]);
+    if (status.value === null) {
+      // This is a parseable ID, but we don't have a status for it.
+      ctx.response.status = 404;
+      return;
+    }
+    const statusResponse = JSON.stringify(status.value);
+    ctx.response.body = statusResponse;
+    ctx.response.status = 200;
+    return;
+  } catch {
+    // This is a bad request.  Typically, because the body does not fit the URLStatusRequest shape.
     ctx.response.status = 400;
     return;
   }
-  // If request passes validation, continue
-  const status = await kv.get(["status", id]);
-  if (status.value === null) {
-    ctx.response.status = 404;
-    return;
-  }
-  const statusResponse = JSON.stringify(status.value);
-  kv.delete(["status", id]);
-  ctx.response.body = statusResponse;
-  ctx.response.status = 200;
 }
