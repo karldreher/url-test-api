@@ -93,5 +93,8 @@ export async function v2UrlRequestHandler(ctx: Context) {
   }
   // Respond with the ID
   ctx.response.body = { id: id };
-  ctx.response.status = 200;
+  // v2 responses return 201 on creation,
+  // and the result is fetched with a GET on /v2/status/:id.
+  ctx.response.headers.set("Location", `/v2/status/${id}`);
+  ctx.response.status = 201;
 }
